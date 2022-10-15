@@ -1,4 +1,5 @@
 import express from "express";
+import { isVowel } from "./isVowel";
 
 const app = express();
 
@@ -8,25 +9,23 @@ app.get("/", (req, res) => {
   });
 });
 
-app.get("/eat/apple", (req, res) => {
+
+
+app.get<{ food: string }>("/eat/:food", (req, res) => {
+    
+  let afood: string
+  if ( isVowel(req.params.food.substring(0, 1)) ) {
+    afood = "an " + req.params.food
+  } else {
+    afood = "a " + req.params.food
+  }
+
   res.json({
-    message: "Yum yum - you ate an apple!",
+    message: `Yum yum - you ate ${afood}!`
   });
 });
 
-app.get("/eat/banana", (req, res) => {
-  res.json({
-    message: "Yum yum - you ate a banana!",
-  });
-});
-
-app.get("/eat/carrot", (req, res) => {
-  res.json({
-    message: "Yum yum - you ate a carrot!",
-  });
-});
-
-app.get("/echo/:exampleRouteParameter", (req, res) => {
+app.get<{ exampleRouteParameter: string }>("/echo/:exampleRouteParameter", (req, res) => {   //<T> specify type for route params
   const echoContent = req.params.exampleRouteParameter;
   res.json({
     echo: echoContent,
@@ -34,7 +33,7 @@ app.get("/echo/:exampleRouteParameter", (req, res) => {
   });
 });
 
-app.get("/multiply/:numOne/:numTwo", (req, res) => {
+app.get<{ numOne: string, numTwo: string }>("/multiply/:numOne/:numTwo", (req, res) => {
   /**
    * Note that `numOne` and `numTwo` are both typed as string.
    * (Hover over with your mouse to see!)
@@ -70,6 +69,33 @@ app.get<{ name: string }>("/happy-birthday/:name", (req, res) => {
     ],
   });
 });
+
+app.get<{ shoutParam: string }>("/shout/:shoutParam", (req, res) => {   //<T> specify type for route params
+  const shoutContent = req.params.shoutParam;
+  res.json({
+    shout: shoutContent,
+    result: `I am shouting back to you: ${shoutContent.toUpperCase()}!`,
+  });
+});
+
+app.get<{ numOne: string, numTwo: string }>("/add/:numOne/:numTwo", (req, res) => {
+  const { numOne, numTwo } = req.params;
+  const addition = parseInt(numOne) + parseInt(numTwo);
+  res.json({
+    original: `${numOne} + ${numTwo}`,
+    result: addition,
+  });
+});
+
+app.get<{ numOne: string, numTwo: string, numThree: string }>("/add/:numOne/:numTwo/:numThree", (req, res) => {
+  const { numOne, numTwo, numThree} = req.params;
+  const addition = parseInt(numOne) + parseInt(numTwo) + parseInt(numThree);
+  res.json({
+    original: `${numOne} + ${numTwo} + ${numThree}`,
+    result: addition,
+  });
+});
+
 
 // using 4000 by convention, but could be changed
 const PORT_NUMBER = 4000;
